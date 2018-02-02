@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <!-- 引入 ECharts 文件 -->
+    <script src="echarts.js"></script>
+    <script src="jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="a1.js"></script>
+</head>
+<body>
+	
+	<div id = "main" style = 
+	"width : 1200px; height : 800px;">\
+	</div>
+	<div id = "pic" align="center">
+		<img src="Asset2.png" width = "250">
+	</div>
+	<script type="text/javascript">
+		var meds = ["Penicilin","Streptomycin","Neomycin"]
+		var bacs = []
+		for(var i =0; i<myData.length;i++){
+			bacs.push(myData[i]["Bacteria"])
+		}
+		console.log(bacs)
+		var myChart = echarts.init(document.getElementById('main'))
+		function convertToRange(value, srcRange, dstRange){
+			if(value < srcRange[0] || value > srcRange[1]){
+				return NaN;
+			}
+			var srcMax = srcRange[1] - srcRange[0],
+				dstMax = dstRange[1] - dstRange[0],
+				adjValue = value - srcRange[0]
+			return (adjValue * dstMax / srcMax) + dstRange[0]
+		}
+		a = convertToRange(860, [0.001, 870], [10,90])
+		console.log(a)
+		data1 = [[]]
+		col = []
+		group1 = []
+		group2 = []
+		for (var i = 0; i < myData.length;i++){
+			if (myData[i]["Gram Staining"]=="positive"){
+				col.push("#c23531")
+				for(var j = 0; j < 3; j++){
+					t = []
+					t.push(j)
+					t.push(i)
+					if (j==0){
+						t.push(Math.log10(Math.log10(myData[i]['Penicilin']+1)+1))
+					}else if(j==1){
+						t.push(Math.log10(Math.log10(myData[i]['Streptomycin']+1)+1))
+					}else{
+						t.push(Math.log10(Math.log10(myData[i]['Neomycin']+1)+1))
+					}
+					group1.push(t)
+				}
+			}else{
+				col.push("#2f4554")
+				for(var j = 0; j < 3; j++){
+					t = []
+					t.push(j)
+					t.push(i)
+					if (j==0){
+						t.push(Math.log10(Math.log10(myData[i]['Penicilin']+1)+1))
+					}else if(j==1){
+						t.push(Math.log10(Math.log10(myData[i]['Streptomycin']+1)+1))
+					}else{
+						t.push(Math.log10(Math.log10(myData[i]['Neomycin']+1)+1))
+					}
+					group2.push(t)
+				}
+			}
+		}
+
+		data1.push(group1)
+		data1.push(group2)
+		d = data1.slice(1)
+		// console.log(col)
+		console.log(d)
+option = {
+    title: {
+        text: 'Antibiotics',
+    },
+    textStyle:{
+    	color:'#000',
+    	fontSize: 15,
+    	fontStyle:'italic',
+    	fontWeight:'bold',
+    },
+    legend: {
+        data: ['Gram Staining Positive','Gram Staining Negative'],
+        left: 'right',
+    },
+    polar: {
+    	trigger:'axis',
+    	axisPointer:{
+    		type:'cross'
+    	}
+    },
+    tooltip: {
+    // show:false,
+    formatter: '{c}',
+    },
+    angleAxis: {
+        type: 'category',
+        data: bacs,
+        boundaryGap: false,
+        splitLine: {
+            show: true,
+            lineStyle: {
+                color: '#999',
+                type: 'dashed'
+            }
+        },
+        axisLine: {
+            show: true
+        }
+    },
+    axisPointer:{
+    	show: true
+    },
+    radiusAxis: {
+    	splitLine:{
+    		show:true,
+    		lineStyle:{
+    			color:'#999',
+    			type:'dashed'
+    		}
+    	},
+        type: 'category',
+        data: meds,
+        axisLine: {
+            show: true
+        },
+        axisLabel: {
+            rotate: 0
+        }
+    },
+    color: col,
+    series: [{
+        name: 'Gram Staining Positive',
+        type: 'scatter',
+        coordinateSystem: 'polar',
+        symbolSize: function (val) {//smooth the circle size
+        return val[2]*100+15
+        },
+        data: d[0],
+        itemStyle:{
+        	color:'#c23531',
+        	opacity: 0.5
+        },
+        animationDelay: function (idx) {
+            return idx *10;
+        }
+    },{
+        name: 'Gram Staining Negative',
+        type: 'scatter',
+        coordinateSystem: 'polar',
+        symbolSize: function (val) {//smooth the circle size
+        return val[2]*100+15
+        },
+        data: d[1],
+        itemStyle:{
+        	color:'#2f4554',
+        	opacity: 0.5
+        },
+        animationDelay: function (idx) {
+            return idx *10;
+        }
+    }
+
+    ]
+};
+	myChart.setOption(option)
+	</script>
+</body>
+</html>
